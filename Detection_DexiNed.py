@@ -17,19 +17,20 @@ def UsingDexiNed(outputFolder):
     print(f"Number of GPU's available: {torch.cuda.device_count()}")
     print(f"Pytorch version: {torch.__version__}")
 
-    checkpoint_path = '/checkpoints/10_model.pth'   # os.path.join(args.output_dir, args.train_data, args.checkpoint_data)
+    checkpoint_path = './checkpoints/10_model.pth'   # os.path.join(args.output_dir, args.train_data, args.checkpoint_data)
     # Get computing device
     device = torch.device('cpu' if torch.cuda.device_count() == 0
                           else 'cuda')
     # Instantiate model and move it to the computing device
     model = DexiNed().to(device)
 
-    dataset_val = TestDataset('/pic_in',
+    dataset_val = TestDataset(data_root='./pic_in/data',
                               test_data='CLASSIC',
                               img_width=512,
                               img_height=512,
                               mean_bgr=[103.939, 116.779, 123.68],
-                              test_list=None
+                              test_list=None,
+                              arg=None
                               )
     print("dataset_val: ")
     print(dataset_val)

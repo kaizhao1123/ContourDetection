@@ -14,8 +14,10 @@ isTesting = True
 
 
 def UsingDexiNed(outputFolder):
-    print(f"Number of GPU's available: {torch.cuda.device_count()}")
-    print(f"Pytorch version: {torch.__version__}")
+
+    print('Start the Detection with Color Threshold method ******')
+    # print(f"Number of GPU's available: {torch.cuda.device_count()}")
+    # print(f"Pytorch version: {torch.__version__}")
 
     checkpoint_path = './checkpoints/10_model.pth'   # os.path.join(args.output_dir, args.train_data, args.checkpoint_data)
     # Get computing device
@@ -24,7 +26,7 @@ def UsingDexiNed(outputFolder):
     # Instantiate model and move it to the computing device
     model = DexiNed().to(device)
 
-    dataset_val = TestDataset(data_root='./pic_in/data',
+    dataset_val = TestDataset(data_root='./pic_in',
                               test_data='CLASSIC',
                               img_width=512,
                               img_height=512,
@@ -32,30 +34,30 @@ def UsingDexiNed(outputFolder):
                               test_list=None,
                               arg=None
                               )
-    print("dataset_val: ")
-    print(dataset_val)
+    # print("dataset_val: ")
+    # print(dataset_val)
     dataloader_val = DataLoader(dataset_val,
                                 batch_size=1,
                                 shuffle=False,
-                                num_workers=16)
+                                num_workers=8)
 
     # output_dir = os.path.join(args.res_dir, args.train_data + "2" + args.test_data)
     test(checkpoint_path, dataloader_val, model, device, outputFolder)
-    print('------------------- Test End -----------------------------')
+    print('------------------- DexiNed test End -----------------------------' + '\n')
 
 
 def test(checkpoint_path, dataloader, model, device, output_dir):
     if not os.path.isfile(checkpoint_path):
         raise FileNotFoundError(
             f"Checkpoint filte note found: {checkpoint_path}")
-    print(f"Restoring weights from: {checkpoint_path}")
+    # print(f"Restoring weights from: {checkpoint_path}")
     model.load_state_dict(torch.load(checkpoint_path,
                                      map_location=device))
 
     # Put model in evaluation mode
     model.eval()
-    print("type: ")
-    print(len(dataloader))
+    # print("type: ")
+    # print(len(dataloader))
     with torch.no_grad():
         total_duration = []
         for batch_id, sample_batched in enumerate(dataloader):
@@ -64,7 +66,7 @@ def test(checkpoint_path, dataloader, model, device, output_dir):
             labels = sample_batched['labels'].to(device)
             file_names = sample_batched['file_names']
             image_shape = sample_batched['image_shape']
-            print(f"input tensor shape: {images.shape}")
+            # print(f"input tensor shape: {images.shape}")
             # images = images[:, [2, 1, 0], :, :]
 
             end = time.perf_counter()
@@ -83,5 +85,5 @@ def test(checkpoint_path, dataloader, model, device, output_dir):
             torch.cuda.empty_cache()
 
     total_duration = np.sum(np.array(total_duration))
-    print("******** Testing finished in", 'CLASSIC', "dataset. *****")
+    # print("******** Testing finished in", 'CLASSIC', "dataset. *****")
     print("FPS: %f.4" % (len(dataloader) / total_duration))

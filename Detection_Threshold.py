@@ -2,12 +2,16 @@ import math
 import cv2
 import numpy as np
 from PIL import Image
+from time import time
 
 
-def UsingThreshold(output_folder, image, imageName, vint):
+def UsingThreshold(output_path, image, imageName, vint):
+
+    print('Start the Detection with Color Threshold method ******')
+
+    cv2.imwrite(output_path + imageName + '.jpg', image)
     type = imageName[:5]
-    print(type)
-    # img1 = cv2.imread('./pic/t2/' + type + '.bmp')
+    startTime = time()
 
     image = cv2.GaussianBlur(image, (3, 3), 0)
     edges = cv2.Canny(image, 0, 50)  # using low vint value
@@ -20,16 +24,16 @@ def UsingThreshold(output_folder, image, imageName, vint):
     # combine the edges image and original image
     contour_image = cv2.add(edges_adjust, image)
     # contour_image = cv2.add(edges, img1)
-    cv2.imwrite('./pic_out/' + output_folder + '/' + imageName + '_Thre_contour.jpg', contour_image)
+    # cv2.imwrite(output_path + imageName + '_Thre_contour.jpg', contour_image)
 
     # get binary image without color blue.
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    lower_blue = np.array([100, 110, 0])
+    lower_blue = np.array([100, 110, 20])
     upper_blue = np.array([140, 255, 255])
     binary_image = cv2.inRange(hsv, lower_blue, upper_blue)
     masked_image = np.copy(image)
     masked_image[binary_image != 0] = [0, 0, 0]
-    cv2.imwrite('./pic_out/' + output_folder + '/' + imageName + '_Thre_binary.jpg', masked_image)
+    # cv2.imwrite(output_path + imageName + '_Thre_binary.jpg', masked_image)
     binary_image = cv2.bitwise_not(binary_image)
 
     #
@@ -45,13 +49,13 @@ def UsingThreshold(output_folder, image, imageName, vint):
     big_contour = max(contours, key=cv2.contourArea)
     result_image_contour = image.copy()
     cv2.drawContours(result_image_contour, [big_contour], 0, (0, 0, 255), thickness=1)
-    cv2.imwrite('./pic_out/' + output_folder + '/' + imageName + '_Thre_drawCon.jpg', result_image_contour)
+    cv2.imwrite(output_path + imageName + '_Thre_drawCon.jpg', result_image_contour)
 
     #
     h, w, _ = image.shape
     template = np.zeros([h, w, 3], dtype=np.uint8)
     cv2.drawContours(template, [big_contour], 0, (255, 255, 255), thickness=1)
-    cv2.imwrite('./pic_out/' + output_folder + '/' + imageName + '_Thre_drawCon_binary.jpg', template)
+    cv2.imwrite(output_path + imageName + '_Thre_drawCon_binary.jpg', template)
 
     # 1. get the height
 
@@ -63,7 +67,6 @@ def UsingThreshold(output_folder, image, imageName, vint):
     big_contour = max(contours, key=cv2.contourArea)
     maxRect = cv2.boundingRect(big_contour)
     height = maxRect[3]
-    # print(maxRect)
 
     # 2. get the X, Y, width
     binary_image_new = binary_image[0:binary_image.shape[0]-10, 0:720]
@@ -73,15 +76,10 @@ def UsingThreshold(output_folder, image, imageName, vint):
     contours = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
     big_contour = max(contours, key=cv2.contourArea)
     maxRect = cv2.boundingRect(big_contour)
-    # print(maxRect)
 
     X, Y, width, _ = maxRect
 
-    # print(X, Y, width, height)
-
     firstCrop = image[Y: Y + height, X: X + width]  # get the target
-
-    # binary_image = cv2.cvtColor(binary_image, cv2.COLOR_GRAY2BGR)
     firstCrop_binary = binary_image[Y: Y + height, X: X + width]
 
     H = firstCrop.shape[0]
@@ -105,23 +103,23 @@ def UsingThreshold(output_folder, image, imageName, vint):
         cropResult[bottomY - H: bottomY, start_X: start_X + W] = firstCrop
         mask_image[start_Y: start_Y + H, start_X: start_X + W] = firstCrop_binary
 
-    # #####  black
-    if type == 'black':
-        Hint = [0, 255]
-        Sint = [0, 255]
-        Vint = [vint, 255]
-        v = str(vint)+'_'
-        temp = Image.fromarray(mask_image)
-        mask = HSVSegment(cropResult, Hint, Sint, Vint)
-        mask_image = Image.fromarray(mask)
-        mask_image.save('./pic_out/' + output_folder + '/' + imageName + '_Thre_mask_' + v + '.png')
-    else:
-        cv2.imwrite('./pic_out/' + output_folder + '/' + imageName + '_Thre_mask.jpg', mask_image)
-    # draw white filled contour on black background
-    # result = cropResult.copy() # np.zeros_like(mask) cv2.bitwise_not(cropResult)
+    # mask images
+    # if type == 'black':
+    #     Hint = [0, 255]
+    #     Sint = [0, 255]
+    #     Vint = [vint, 255]
+    #     v = str(vint)+'_'
+    #     temp = Image.fromarray(mask_image)
+    #     mask = HSVSegment(cropResult, Hint, Sint, Vint)
+    #     mask_image = Image.fromarray(mask)
+    #     mask_image.save(output_path + imageName + '_Thre_mask_' + v + '.png')
+    # else:
+    #     cv2.imwrite(output_path + imageName + '_Thre_mask.jpg', mask_image)
 
     # save results
-    cv2.imwrite('./pic_out/' + output_folder + '/' + imageName + '_Thre_crop.jpg', cropResult)
+    # cv2.imwrite(output_path + imageName + '_Thre_crop.jpg', cropResult)
+
+    print("The Threshold time: --- %0.3f seconds ---" % (time() - startTime) + "\n")
 
 
 def HSVSegment(rgb_image, Hint, Sint, Vint):

@@ -5,6 +5,7 @@ from time import time
 
 def UsingHED(output_folder, image, imageName, CannyVint):
 
+    print('Start the Detection with HED method ******')
     class CropLayer(object):
         def __init__(self, params, blobs):
             self.xstart = 0
@@ -46,7 +47,7 @@ def UsingHED(output_folder, image, imageName, CannyVint):
     startTime = time()
     out = net.forward()
 
-    print("Total time: --- %0.3f seconds ---" % (time() - startTime) + "\n")
+    print("The HED time: --- %0.3f seconds ---" % (time() - startTime) + "\n")
 
     out = out[0, 0]
     out = cv2.resize(out, (image.shape[1], image.shape[0]))
@@ -60,15 +61,7 @@ def UsingHED(output_folder, image, imageName, CannyVint):
     edges = cv2.Canny(image_canny, 0, CannyVint)
     edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
 
-    # print(type(out))
-    # print(np.max(out))
-    # print(np.min(out))
-    # print(out.shape)
-    # print(image.shape)
-    # con = np.concatenate((image, out), axis=1)
     con = out
-    # cv2.imshow("HED", con)
-    # cv2.imshow("canny", edges)
-    # cv2.waitKey(0)
+
     cv2.imwrite('pic_out/' + output_folder + '/' + imageName + '_HED_out.jpg', con)
     cv2.imwrite('pic_out/' + output_folder + '/' + imageName + '_Canny_out.jpg', edges)

@@ -65,3 +65,5 @@ def UsingHED(output_folder, image, imageName, CannyVint):
 
     cv2.imwrite('pic_out/' + output_folder + '/' + imageName + '_HED_out.jpg', con)
     cv2.imwrite('pic_out/' + output_folder + '/' + imageName + '_Canny_out.jpg', edges)
+
+

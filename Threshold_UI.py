@@ -51,13 +51,23 @@ def createWindowForDeviceProperty(output_path):
     entry_img_name = tk.Entry(window, textvariable=val_img_name, font=('Arial', fontSize_label))
     entry_img_name.place(x=secondCol_X, y=start_Y, width=eleWidth_label / 2.2)
 
+    val_img_name_ex = tk.StringVar()
+    val_img_name_ex.set('0')
+    entry_img_name_ex = tk.Entry(window, textvariable=val_img_name_ex, font=('Arial', fontSize_label))
+    entry_img_name_ex.place(x=thirdCol_X, y=start_Y, width=eleWidth_label / 2.2)
+
     def getImage():
         global imageName, image
         imageName = val_img_name.get()
+        imageName_ex = val_img_name_ex.get()
 
         image = cv2.imread('pic_in/' + imageName + '.bmp')
         # save the original image
-        imageName = '00' + str(int(imageName) + 36)
+        temp = int(imageName) + int(imageName_ex)
+        if temp < 100:
+            imageName = '00' + str(temp)
+        else:
+            imageName = '0' + str(temp)
 
         cv2.imwrite(output_path + imageName + '.bmp', image)
         display_currentImage()
@@ -123,8 +133,6 @@ def createWindowForDeviceProperty(output_path):
     frame_contour.place(x=fourthCol_X, y=10)
     label_contour = tk.Label(frame_contour)
     label_contour.grid()
-
-
 
     # display the contour image based on the default color threshold.
     def display_contourImage():
@@ -267,6 +275,7 @@ def getContour(img, imageName, thrd_high, thrd_low, output_path):
 
     # combine the edges image and original image
     contour_image = cv2.add(edges, img)
+    cv2.imwrite(output_path + imageName + '_combinCanny.jpg', contour_image)
 
     # get binary image without color blue.
     hsv = cv2.cvtColor(contour_image, cv2.COLOR_BGR2HSV)

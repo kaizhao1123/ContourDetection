@@ -94,29 +94,29 @@ def sobel_filter(rows, columns, image, channel):
 
 
 #
-def drawContour_Sobel(img, imageName, output_path, vint):
-    image = cv2.GaussianBlur(img, (3, 3), 0)
+def drawContour_Sobel(image, imageName, output_path, vint):
 
-    # get binary image without color blue.
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
+    cv2.imwrite(output_path + imageName + '_sobel_gray.jpg', gray)
     # # # draw the contour
     thresh = cv2.threshold(gray, vint, 255, cv2.THRESH_BINARY)[1]
     element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))  # Morphological denoising
     dst = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, element)
     contours = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
     big_contour = max(contours, key=cv2.contourArea)
-    result_image = img.copy()
-    cv2.drawContours(result_image, [big_contour], 0, (0, 0, 255), thickness=1)
+    # result_image = img.copy()
+    # cv2.drawContours(result_image, [big_contour], 0, (0, 0, 255), thickness=1)
 
+    # draw contour on a binary image.
     h, w, _ = image.shape
     template = np.zeros([h, w, 3], dtype=np.uint8)
     cv2.drawContours(template, [big_contour], 0, (255, 255, 255), thickness=1)
     cv2.imwrite(output_path + imageName + '_sobelContour.jpg', template)
 
-    image1 = cv2.imread('pic_out/4-3-23/' + imageName + '.bmp')
-    cv2.drawContours(image1, [big_contour], 0, (255, 255, 255), thickness=1)
+    # draw contour on the original image.
+    image1 = cv2.imread(output_path + imageName + '.bmp')
+    cv2.drawContours(image1, [big_contour], 0, (255, 255, 255), thickness=-1)
     cv2.imwrite(output_path + imageName + '_sobel_ori.jpg', image1)
 
-    return result_image
+
 

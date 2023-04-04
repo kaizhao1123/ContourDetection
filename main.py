@@ -9,9 +9,9 @@ from Threshold_UI import CreateThresholdUI
 
 if __name__ == '__main__':
 
-    imageName = '0001'
+    imageName = '0034'
     image = cv2.imread('pic_in/' + imageName + '.bmp')
-    outputFolder = '4-3-23'
+    outputFolder = '4-4-23'
     outputPath = './pic_out/' + outputFolder + '/'
 
     if not os.path.exists(outputPath):
@@ -34,8 +34,8 @@ if __name__ == '__main__':
     # Using2DFilter(outputFolder, image, imageName)
     UsingSobel_custom(image, imageName, outputFolder)
 
-    image = cv2.imread('pic_out/4-3-23/' + imageName + '_sobel_cus.jpg')
+    image = cv2.imread('pic_out/4-4-23/' + imageName + '_sobel_cus.jpg')
     # print(image)
-    drawContour_Sobel(image, imageName, outputPath, vint=50)
+    drawContour_Sobel(image, imageName, outputPath, vint=15)    # white dark 45, light 70; black dark 35, light 35.
 
 
